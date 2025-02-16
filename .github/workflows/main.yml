@@ -111,3 +111,4 @@ jobs:
     - run: npm install
     - run: npm install express multer
     - run: npm install adm-zipr
+    - run: npm 20250122
