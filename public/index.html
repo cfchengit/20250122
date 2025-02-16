@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>學生作品上傳系統</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <div class="container">
+      <h1>學生作品上傳系統</h1>
+      <form action="/upload" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="studentId">學號：</label>
+          <input type="text" id="studentId" name="studentId" required>
+        </div>
+        <div class="form-group">
+          <label for="week">週次：</label>
+          <input type="number" id="week" name="week" min="1" max="18" required>
+        </div>
+        <div class="form-group">
+          <label for="file">選擇檔案：</label>
+          <input type="file" id="file" name="file" required>
+        </div>
+        <button type="submit">上傳檔案</button>
+      </form>
+      <div id="fileList">
+        <!-- 已上傳的檔案將在這裡顯示 -->
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>

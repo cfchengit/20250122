@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>學生作品展示</title>
+    <link rel="stylesheet" type="text/css" href="/style.css">
+    <style>
+        .preview-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+        
+        .preview-frame-container {
+            position: relative;
+            width: 90%;
+            height: 90%;
+            margin: auto;
+            top: 5%;
+            background: white;
+        }
+
+        .preview-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .close-preview {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .file-icon {
+            margin-right: 10px;
+        }
+
+        .preview-button {
+            margin-left: 10px;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .preview-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>學生作品展示</h1>
+        <div id="studentWorks">
+            <!-- 作品將在這裡顯示 -->
+        </div>
+    </div>
+
+    <div class="preview-container" id="previewContainer">
+        <span class="close-preview" onclick="closePreview()">&times;</span>
+        <div class="preview-frame-container">
+            <iframe class="preview-frame" id="previewFrame"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const icons = {
+                'html': '🌐',
+                'htm': '🌐',
+                'css': '🎨',
+                'js': '📜',
+                'jpg': '🖼️',
+                'jpeg': '🖼️',
+                'png': '🖼️',
+                'gif': '🖼️',
+                'pdf': '📄',
+                'zip': '📦'
+            };
+            return icons[ext] || '📄';
+        }
+
+        function showPreview(url) {
+            document.getElementById('previewContainer').style.display = 'block';
+            document.getElementById('previewFrame').src = url;
+        }
+
+        function closePreview() {
+            document.getElementById('previewContainer').style.display = 'none';
+            document.getElementById('previewFrame').src = '';
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const studentId = window.location.pathname.split('/').pop();
+            const studentWorks = document.getElementById('studentWorks');
+
+            try {
+                const response = await fetch(`/files/${studentId}`);
+                const data = await response.json();
+                
+                if (data.length === 0) {
+                    studentWorks.innerHTML = '<p>目前沒有上傳的作品</p>';
+                    return;
+                }
+
+                studentWorks.innerHTML = `<h2>學號 ${studentId} 的作品：</h2>`;
+                
+                // 依週次排序
+                data.sort((a, b) => {
+                    const weekA = parseInt(a.week.replace('week', ''));
+                    const weekB = parseInt(b.week.replace('week', ''));
+                    return weekA - weekB;
+                });
+
+                // 顯示每週的作品
+                data.forEach(weekData => {
+                    const weekNumber = weekData.week.replace('week', '');
+                    const weekHtml = `
+                        <div class="week-section">
+                            <h3>第 ${weekNumber} 週</h3>
+                            <div class="file-list">
+                                ${weekData.files.map(file => {
+                                    const isPreviewable = file.name.match(/\.(html|htm|jpg|jpeg|png|gif|pdf)$/i);
+                                    const previewUrl = `/preview/${studentId}/${weekData.week}/${file.name}`;
+                                    return `
+                                        <div class="file-item">
+                                            <span class="file-icon">${getFileIcon(file.name)}</span>
+                                            <a href="${file.path}" target="_blank">${file.name}</a>
+                                            ${isPreviewable ? `
+                                                <button class="preview-button" onclick="showPreview('${previewUrl}')">
+                                                    預覽
+                                                </button>
+                                            ` : ''}
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                    studentWorks.innerHTML += weekHtml;
+                });
+            } catch (error) {
+                console.error('獲取作品列表失敗：', error);
+                studentWorks.innerHTML = '<p>載入作品時發生錯誤</p>';
+            }
+        });
+    </script>
+</body>
+</html> 
