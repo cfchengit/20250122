@@ -22,5 +22,5 @@ jobs:
     - run: npm install
     - run: npm install init -y
     - run: npm install express multer
-    - run: npm install adm-zipr
+    - run: npm install adm-zip
 
